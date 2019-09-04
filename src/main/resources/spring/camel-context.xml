@@ -44,8 +44,6 @@
             <log id="_log4" message="\n*****\n DESCRIPTION ERROR \n ${body}\n*****"/>
             <log id="_log5" message="\n*****\n error-message \n ${exception.message}\n*****"/>
             <setBody id="_setBody2">
-            
-            
                 <constant>ERROR</constant>
             </setBody>
         </route>
