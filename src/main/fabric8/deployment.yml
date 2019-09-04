@@ -1,0 +1,36 @@
+spec:
+  template:
+    spec:
+      containers:
+        -
+          resources:
+            requests:
+              cpu: "0.2"
+              memory: 256Mi
+            limits:
+              cpu: "1.0"
+              memory: 256Mi         
+          env:
+          - name: SPRING_APPLICATION_JSON
+            value: '{"server":{"undertow":{"io-threads":1, "worker-threads":2 }}}'
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /camel/readiness/
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            succesThreshold: 1
+            timeoutSeconds: 5
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /camel/liveness
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            succesThreshold: 1
+            timeoutSeconds: 5
+  
