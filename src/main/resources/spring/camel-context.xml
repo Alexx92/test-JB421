@@ -1,10 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+      xmlns:camel="http://camel.apache.org/schema/spring"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://camel.apache.org/schema/spring       http://camel.apache.org/schema/spring/camel-spring.xsd">
-
+       xsi:schemaLocation=" 
+       http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring       
+       http://camel.apache.org/schema/spring/camel-spring.xsd">
+   <!-- Define a traditional camel context here -->
+      <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+          <!-- EXCLUDE-BEGIN -->
+          <restConfiguration bindingMode="off" component="servlet" contextPath="/rest"/>
+          <rest apiDocs="true" id="rest" path="/service">
+              <post id="post-1" uri="/customers">
+                  <to uri="direct:inbox"/>
+              </post>
+          </rest>
+          <route id="_receptRoute" streamCache="true">
+              <from id="_fromIR1" uri="direct:inbox"/>
+              <onException id="_onException1">
+                  <exception>org.apache.camel.ExchangeTimedOutException</exception>
+                  <handled>
+                      <constant>true</constant>
+                  </handled>
+                  <log id="_log1" message=">> Exception : ${body}"/>
+                  <convertBodyTo id="_convertBodyTo1" type="java.lang.String"/>
+                  <to id="_to2" uri="direct:error"/>
+              </onException>
+              <log id="_log1" message="\n*****\n${body}\n*****"/>
+              <log id="_log2" message="BODY CLASS =>\n${body.class}\n "/>
+              <convertBodyTo id="_convertBodyTo2" type="java.lang.String"/>
+              <setBody id="_setBody1">
+                  <constant>SUCCESS</constant>
+              </setBody>
+          </route>
+          <route id="_route1">
+              <from id="_fromError" uri="direct:error"/>
+              <setHeader headerName="error-code" id="_setHeader1">
+                  <constant>111</constant>
+              </setHeader>
+              <setHeader headerName="error-message" id="_setHeader2">
+                  <simple>${exception.message}</simple>
+              </setHeader>
+              <setHeader headerName="message" id="_setHeader3">
+                  <simple>${body}</simple>
+              </setHeader>
+              <log id="_log3" message=">> Route Error"/>
+              <log id="_log4" message="\n*****\n DESCRIPTION ERROR \n ${body}\n*****"/>
+              <log id="_log5" message="\n*****\n error-message \n ${exception.message}\n*****"/>
+              <setBody id="_setBody2">
+              
+              
+                  <constant>ERROR</constant>
+              </setBody>
+          </route>
+      </camelContext>
     <!-- You could also define a traditional camel context here -->
     <!--
     <camelContext xmlns="http://camel.apache.org/schema/spring">

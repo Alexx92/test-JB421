@@ -20,6 +20,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportResource;
 
+import org.apache.camel.component.servlet.CamelHttpTransportServlet;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
+
+
 /**
  * A spring-boot application that includes a Camel route builder to setup the Camel routes
  */
@@ -32,10 +37,17 @@ public class Application extends RouteBuilder {
         SpringApplication.run(Application.class, args);
     }
 
-    @Override
-    public void configure() throws Exception {
-        from("timer://foo?period=5000")
-            .setBody().constant("Hello World")
-            .log(">>> ${body}");
+    // @Override
+    // public void configure() throws Exception {
+    //     from("timer://foo?period=5000")
+    //         .setBody().constant("Hello World")
+    //         .log(">>> ${body}");
+    // }
+    @Bean
+    ServletRegistrationBean servletRegistrationBean() {
+        ServletRegistrationBean servlet = new ServletRegistrationBean(
+            new CamelHttpTransportServlet(), "/rest/*");
+        servlet.setName("CamelServlet");
+        return servlet;
     }
 }
